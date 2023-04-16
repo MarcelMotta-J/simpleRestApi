@@ -1,0 +1,221 @@
+Django Rest Framework for Beginners - Simple CRUD API
+https://www.youtube.com/watch?v=OJdFj5hPAKs
+
+VARIÁVEIS DE AMBIENTE PYTHON
+
+
+
+---------------------------------------------------------------
+configurando PowerShell no modo Administrador
+
+PS C:\Windows\system32> Get-ExecutionPolicy
+Restricted
+
+liberando ambiente virtual para powerShell no VSCode
+
+PS C:\Windows\system32> Set-ExecutionPolicy AllSigned -Force
+
+PS C:\Windows\system32> Set-ExecutionPolicy Unrestrict -Force
+PS C:\Windows\system32> Get-ExecutionPolicy
+Unrestricted
+---------------------------------------------------------------
+Abrindo terminal no VSCode p configuras ambiente virtual
+
+PS C:\Users\HP\Desktop\projetoWeb\Agenda01> python -m venv venv 
+
+Ativando Ambiente virtual
+PS C:\Users\HP\Destop\projetoWeb\Agenda01> .\venv\Scripts\activate
+(venv) PS C:\Users\HP\Desktop\projetoWeb\Agenda01> 
+---------------------------------------------------------------
+ INSTALANDO O DJANGO REST FRAMEWORK
+
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud> pip install django djangorestframework
+Collecting django
+  Using cached Django-4.2-py3-none-any.whl (8.0 MB)
+Collecting djangorestframework
+  Downloading djangorestframework-3.14.0-py3-none-any.whl (1.1 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 13.5 MB/s eta 0:00:00
+Collecting tzdata
+  Using cached tzdata-2023.3-py2.py3-none-any.whl (341 kB)
+Collecting sqlparse>=0.3.1
+  Using cached sqlparse-0.4.3-py3-none-any.whl (42 kB)
+Collecting asgiref<4,>=3.6.0
+  Using cached asgiref-3.6.0-py3-none-any.whl (23 kB)
+Collecting pytz
+  Downloading pytz-2023.3-py2.py3-none-any.whl (502 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 502.3/502.3 kB 32.8 MB/s eta 0:00:00
+Installing collected packages: pytz, tzdata, sqlparse, asgiref, django, djangorestframework
+Successfully installed asgiref-3.6.0 django-4.2 djangorestframework-3.14.0 pytz-2023.3 sqlparse-0.4.3 tzdata-2023.3
+
+[notice] A new release of pip is available: 23.0.1 -> 23.1
+[notice] To update, run: python.exe -m pip install --upgrade pip
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud> 
+
+
+---------------------------------------------------------------
+1 - CRIANDO PROJETO RAIZ
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud> django-admin startproject root .
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud>
+
+
+
+---------------------------------------------------------------
+2 - CRIANDO APP api
+
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud> django-admin startapp api
+
+---------------------------------------------------------------
+3 - REGISTRANDO NA RAIZ EM SETTINGS.PY
+
+ADICIONAR  'api.apps.ApiConfig',
+           'rest_framework',
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'api.apps.ApiConfig',
+    'rest_framework',
+]
+
+
+---------------------------------------------------------------
+4 - CRIAR MODELS em api
+
+from django.db import models
+
+# Create your models here.
+
+class Location(models.Model):
+    locationName = models.CharField(max_lenght=100, unique=True)
+    
+    def __str__(self):
+        return self.locationName
+
+
+class Item(models.Model):
+    itemName = models.CharField(max_lenght=100)
+    date_added = models.DateTimeField(auto_now=True)
+    itemLocation= models.ForeignKey(Location, on_delete=models.CASCADE) # If delete location you delete item
+    
+    def __str__(self):
+        return self.itemName
+
+
+
+---------------------------------------------------------------
+5 - PREPARANDO A PAGINA ADMIN DJANGO EM admin.py
+
+from django.contrib import admin
+from .models import Item, Location
+
+# Register your models here.
+
+admin.site.register(Item)
+admin.site.register(Location)
+
+
+---------------------------------------------------------------
+6 - MIGRAÇÕES
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud> python manage.py makemigrations
+Migrations for 'api':
+  api\migrations\0001_initial.py
+    - Create model Location
+    - Create model Item
+
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud> python manage.py migrate       
+Operations to perform:
+  Apply all migrations: admin, api, auth, contenttypes, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK     
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying api.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying sessions.0001_initial... OK
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud>
+
+---------------------------------------------------------------
+7 -  CRIAR SUPER USER PARA O ADMIN DJANGO
+
+senha e pass admin
+
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud> python manage.py createsuperuser
+Username (leave blank to use 'hp'): admin
+Email address: 
+Password: 
+Password (again): 
+The password is too similar to the username.
+This password is too short. It must contain at least 8 characters.
+This password is too common.
+Bypass password validation and create user anyway? [y/N]: y
+Superuser created successfully.
+
+
+---------------------------------------------------------------
+8-  CHECAR RODANDO SERVER
+
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud> python manage.py runserver 
+
+---------------------------------------------------------------
+9 - URLS.PY
+
+CRIADO GRAFICAMENTE NO VSCODE
+
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud> touch api/urls.py
+touch : O termo 'touch' não é reconhecido como nome de cmdlet, função, arquivo de script 
+ou programa operável. Verifique a grafia do nome ou, se um caminho tiver sido incluído,   
+veja se o caminho está correto e tente novamente.
+No linha:1 caractere:1
++ touch api/urls.py
++ ~~~~~
+    + CategoryInfo          : ObjectNotFound: (touch:String) [], CommandNotFoundExceptio  
+   n
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+---------------------------------------------------------------
+10 - SERIALIZERS
+
+CRIADO GRAFICAMENTE NO VSCODE
+
+(venv) PS C:\Users\HP\Desktop\projetoWeb\simpleRestApiCrud> touch api/serializers.py      
+touch : O termo 'touch' não é reconhecido como nome de cmdlet, função, arquivo de script 
+ou programa operável. Verifique a grafia do nome ou, se um caminho tiver sido incluído,   
+veja se o caminho está correto e tente novamente.
+No linha:1 caractere:1
++ touch api/serializers.py
++ ~~~~~
+    + CategoryInfo          : ObjectNotFound: (touch:String) [], CommandNotFoundExceptio  
+   n
+    + FullyQualifiedErrorId : CommandNotFoundException
+---------------------------------------------------------------
+11 - IR NO URLS.PY PRINCIPAL EM ROOT
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
+]
+
+---------------------------------------------------------------
+12 - SERIALIZERS.PY
+
+
